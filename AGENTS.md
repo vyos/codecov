@@ -17,5 +17,5 @@ This repo holds the **Codecov Global YAML** for the `vyos` GitHub organization.
 2. Keep `codecov.yml` comment-free — Codecov strips comments on dashboard save; any
    explanatory content lives here in AGENTS.md or in README.md.
 3. After merge to `production`, operator pastes from
-   `gh api repos/vyos/codecov/contents/codecov.yml?ref=production --jq '.content' | base64 -d`
+   `gh api 'repos/vyos/codecov/contents/codecov.yml?ref=production' -H "Accept: application/vnd.github.raw"`
    into the dashboard. Repo is the source of truth; dashboard is a cache.

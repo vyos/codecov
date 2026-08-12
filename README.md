@@ -18,8 +18,8 @@ delta is enumerated in the per-org delta table below — never as comments in `c
    `https://codecov.io/validate`. The check must pass.
 3. After merge to `production`:
    ```bash
-   gh api repos/vyos/codecov/contents/codecov.yml?ref=production \
-     --jq '.content' | base64 -d
+   gh api 'repos/vyos/codecov/contents/codecov.yml?ref=production' \
+     -H "Accept: application/vnd.github.raw"
    ```
    Operator pastes this content into the dashboard editor (linked above), saves,
    and re-opens the tab to confirm the saved content matches.
@@ -27,7 +27,7 @@ delta is enumerated in the per-org delta table below — never as comments in `c
 ## Paste protocol (operator)
 
 1. Open https://app.codecov.io/account/gh/vyos/yaml in browser.
-2. Fetch the merged file via `gh api ... | base64 -d` (above).
+2. Fetch the merged file via the quoted `gh api` raw-content command (above).
 3. Paste into the dashboard editor.
 4. Save.
 5. Re-open the dashboard tab. **Codecov strips comments** — the saved content
