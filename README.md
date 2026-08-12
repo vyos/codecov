@@ -47,8 +47,11 @@ and the `ignore` patterns (`**/*.config.{ts,js,mjs,cjs}`, `**/*.d.ts`, `.next/`,
 are Next.js-derived from the canary in [VyOS-Networks/next-js-vyos](https://github.com/VyOS-Networks/next-js-vyos).
 They are reasonable starting points for JS/TS repos and harmless for non-JS repos (the
 `ignore` patterns simply don't match Python/C++/Ansible paths and the thresholds apply to
-whatever does upload coverage). Repos in other languages that opt into Codecov should
-override numerics in their per-repo `.codecov.yml`.
+whatever does upload coverage). The root `tests/` and `scripts/` patterns are also globally
+ignored: coverage *of* test code and utility scripts is intentionally excluded from
+reporting. A repo whose `scripts/` (or `tests/`) tree holds coverage-bearing product code
+should override the `ignore` list in its per-repo `.codecov.yml`. Repos in other languages
+that opt into Codecov should likewise override numerics in their per-repo `.codecov.yml`.
 
 ## Onboarding a new repo to Codecov coverage
 

@@ -6,7 +6,7 @@ This repo holds the **Codecov Global YAML** for the `vyos` GitHub organization.
 - `codecov.yml` — the canonical, comment-free dashboard-paste payload. Mirror of
   `https://app.codecov.io/account/gh/vyos/yaml`.
 - `.github/workflows/validate.yml` — required CI check; POSTs the file to
-  `https://codecov.io/validate` on every PR/push.
+  `https://codecov.io/validate` on every PR and on pushes to `production`.
 - `.mergify.yml` — extends central [vyos/mergify](https://github.com/vyos/mergify).
 - `.coderabbit.yaml` — inherits from [vyos/coderabbit](https://github.com/vyos/coderabbit)
   (`inheritance: true` is mandatory).
