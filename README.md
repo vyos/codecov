@@ -57,3 +57,4 @@ that opt into Codecov should likewise override numerics in their per-repo `.code
 
 (deferred — see spec §9 follow-up; the playbook lives in `docs/per-repo-onboarding.md` once
 the first non-canary opt-in lands)
+
