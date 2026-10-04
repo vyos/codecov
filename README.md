@@ -21,24 +21,66 @@ delta is enumerated in the per-org delta table below — never as comments in `c
    gh api 'repos/vyos/codecov/contents/codecov.yml?ref=production' \
      -H "Accept: application/vnd.github.raw"
    ```
-   Operator pastes this content into the dashboard editor (linked above), saves,
-   and re-opens the tab to confirm the saved content matches.
+   To paste, the operator follows the paste protocol below, which fetches this same file
+   pinned to one commit SHA as `payload.yml`; that file is the only content to paste
+   into the dashboard editor (linked above) and verify.
+
+### Branch governance
+
+This repo carries the enterprise governance tier `central-config`. On `production`:
+
+- Merges are PR-only and need **2 approving reviews**. Stale approvals are dismissed
+  when new commits are pushed, and the most recent push must be approved by someone
+  other than the person who pushed it.
+- The only bypass on this merge gate is Mergify's PR merge path. No human role,
+  including org admins, can bypass it.
+- The per-repo ruleset `production-required-checks` makes the `validate` check
+  required, with no bypass actors.
+
+Plan changes so that two reviewers are available when the PR needs to merge.
 
 ## Paste protocol (operator)
 
-1. Open https://app.codecov.io/account/gh/vyos/yaml in browser.
-2. Fetch the merged file via the quoted `gh api` raw-content command (above).
-3. Paste into the dashboard editor.
-4. Save.
-5. Re-open the dashboard tab. **Codecov strips comments** — the saved content
-   should match the paste content because the file is comment-free.
-6. Capture the Codecov change-history audit-log row (timestamp, user, prior version)
-   to the IS ticket as evidence.
-7. Record merge commit SHA + paste timestamp + audit-log reference in the IS ticket.
+The Codecov UI exposes no audit history for the account YAML, so the paste is verified
+by comparing content hashes.
+
+1. Resolve the `production` commit SHA once, then fetch the payload and its blob SHA
+   from that same commit (so both describe the same content even if `production` moves):
+   ```bash
+   SRC=$(gh api 'repos/vyos/codecov/commits/production' --jq .sha)
+   gh api "repos/vyos/codecov/contents/codecov.yml?ref=$SRC" \
+     -H "Accept: application/vnd.github.raw" > payload.yml
+   gh api "repos/vyos/codecov/contents/codecov.yml?ref=$SRC" --jq .sha
+   ```
+   `$SRC` is the source commit SHA; the last command prints the `codecov.yml` blob SHA.
+2. Open https://app.codecov.io/account/gh/vyos/yaml in browser.
+3. Before pasting, capture the current editor content. It is expected to be empty on
+   the first paste; otherwise keep it as the rollback pre-image. Blanking the editor
+   and saving is an exact rollback only when the pre-state was empty.
+4. Paste `payload.yml` via the clipboard — do not type it (editor auto-indent can
+   corrupt YAML). Save.
+5. Reload the page, copy the editor content back into a file (for example `saved.yml`),
+   and compare it with the payload: `git hash-object saved.yml` must equal the blob SHA
+   from step 1. **Codecov strips comments** on save; the hashes match because the file
+   is comment-free.
+6. Record the source commit SHA, blob SHA, paste timestamp, pre-state, and the
+   comparison result in the change ticket.
 
 ## Per-org delta (vyos vs VyOS-Networks)
 
 (none at the time of last update — both orgs paste byte-identical `codecov.yml`)
+
+## How this interacts with per-repo codecov.yml
+
+Codecov merges this account-level YAML with each repository's own `codecov.yml`: the
+Global YAML is not replaced but updated with the repository YAML, so every key the
+repository sets wins and every nested key it omits is inherited from here (see the
+[Codecov YAML documentation](https://docs.codecov.com/docs/codecov-yaml)).
+
+This Global YAML sets `informational: true` on the default `project` and `patch`
+statuses. A repository that wants a blocking (enforced) Codecov status must set
+`informational: false` explicitly in its own `codecov.yml`; omitting the key silently
+inherits `informational: true`.
 
 ## Language-applicability caveat
 
@@ -57,4 +99,3 @@ that opt into Codecov should likewise override numerics in their per-repo `.code
 
 (deferred — see spec §9 follow-up; the playbook lives in `docs/per-repo-onboarding.md` once
 the first non-canary opt-in lands)
-
