@@ -13,7 +13,8 @@ delta is enumerated in the per-org delta table below — never as comments in `c
 
 ## Change protocol
 
-1. PRs only. No direct dashboard edits.
+1. PRs only. The only allowed dashboard change is pasting the merged, pinned `production`
+   payload per the paste protocol below; no ad-hoc or manual edits in the dashboard editor.
 2. PRs run the `validate` workflow which POSTs `codecov.yml` to
    `https://codecov.io/validate`. The check must pass.
 3. After merge to `production`:
